@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
 
 chrome_driver = ChromeService(ChromeDriverManager().install())
@@ -20,23 +21,42 @@ driver.implicitly_wait(10)
 title = driver.title
 print(title)
 
-driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+def procces_page(driver, page_number):
+    try:
+        for i in range(1, 31):
+            if i <= 8:
+                first_xpath = f'/html/body/div[3]/div/div/div/main/div/div[3]/div[2]/div/div[3]/div[3]/div/div/div/div[2]/div[{i}]/div/a/div/div/div[2]/div[1]'
+                first_element = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, first_xpath))
+                )
+                print(f'{i}_Element:{first_element.text}')
+                driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", first_element)
+            else:
+                first_xpath = f'/html/body/div[3]/div/div/div/main/div/div[3]/div[2]/div/div[3]/div[3]/div/div/div/div[2]/div[{i}]/div/div/a/div/div/div[2]/div[1]'
+                first_element = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.XPATH, first_xpath))
+                )
+                print(f'{i} Element:{first_element.text}')
+                driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", first_element)
 
-# try:
-#     element = WebDriverWait(driver, 10).until(
-#         EC.presence_of_all_elements_located(
-#             (By.XPATH, '//*[@id="tabContainer"]/div[3]/div[3]/div/div/div/div[2]/div[1]/div/a/div/div[1]/div[2]/div[1]')
-#         )
-#     )
-#     print('Element:',element.list)
-# except Exception as e:
-#     print('Error', e)
+    except Exception as e:
+        print(f'Error: {e}')
 
-#element = driver.find_element(By.XPATH, '//*[@id="tabContainer"]/div[3]/div[3]/div/div/div/div[2]/div[1]/div/a/div/div[1]/div[2]/div[1]')
-element = driver.find_element(By.CSS_SELECTOR, '//*[@id="tabContainer"]/div[3]/div[3]/div/div/div/div[2]/div[1]/div/a/div/div[1]/div[2]/div[1]')
-print(element)
+def go_to_page(driver, page_number):
+    current_url = driver.current_url
+    new_url = current_url.split('?')[0] + f"?p={page_number}"
+    driver.get(new_url)
 
-current_url = driver.current_url
-print(current_url)
+try:
+    driver.get('https://www.binance.com/ru/markets/overview?p=1')
+    total_pages = 14
+    for page in range(1, total_pages):
+        procces_page(driver, page)
+        if page < total_pages:
+            go_to_page(driver, page + 1)
 
-driver.quit()
+except Exception as e:
+        print(f'Error: {e}')
+
+finally:
+    driver.quit()
