@@ -5,6 +5,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from models.parser_models import CryptoCurrency
+from models.settings import session
+
 
 
 chrome_driver = ChromeService(ChromeDriverManager().install())
@@ -41,13 +44,23 @@ def procces_page(driver):
                     EC.presence_of_element_located((By.XPATH, capitalization_xpath))
                 )
 
-                print(f'{i} Short Name: {short_name_element.text}')
-                print(f'{i} Full Name: {full_name_element.text}')
-                print(f'{i} Price: {price_element.text}')
-                print(f'{i} percentage_change: {percentage_change_element.text}')
-                print(f'{i} volume_for_the_period: {volume_for_the_period_element.text}')
-                print(f'{i} capitalization: {capitalization_element.text}')
+                # print(f'{i} Short Name: {short_name_element.text}')
+                # print(f'{i} Full Name: {full_name_element.text}')
+                # print(f'{i} Price: {price_element.text}')
+                # print(f'{i} percentage_change: {percentage_change_element.text}')
+                # print(f'{i} volume_for_the_period: {volume_for_the_period_element.text}')
+                # print(f'{i} capitalization: {capitalization_element.text}')
 
+                short_name = short_name_element.text
+                full_name = full_name_element.text
+                price = price_element.text
+                percentage_change = percentage_change_element.text
+                volume_for_the_period = volume_for_the_period_element.text
+                capitalization = capitalization_element.text
+
+                new_data = CryptoCurrency(short_name=short_name, full_name=full_name, price=price, percentage_change=percentage_change, volume_for_the_period=volume_for_the_period, capitalization=capitalization)
+                session.add(new_data)
+                session.commit()
 
                 driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", short_name_element)
 
@@ -77,12 +90,23 @@ def procces_page(driver):
                     EC.presence_of_element_located((By.XPATH, capitalization_xpath))
                 )
 
-                print(f'{i} Short Name: {short_name_element.text}')
-                print(f'{i} Full Name: {full_name_element.text}')
-                print(f'{i} Price: {price_element.text}')
-                print(f'{i} percentage_change: {percentage_change_element.text}')
-                print(f'{i} volume_for_the_period: {volume_for_the_period_element.text}')
-                print(f'{i} capitalization: {capitalization_element.text}')
+                # print(f'{i} Short Name: {short_name_element.text}')
+                # print(f'{i} Full Name: {full_name_element.text}')
+                # print(f'{i} Price: {price_element.text}')
+                # print(f'{i} percentage_change: {percentage_change_element.text}')
+                # print(f'{i} volume_for_the_period: {volume_for_the_period_element.text}')
+                # print(f'{i} capitalization: {capitalization_element.text}')
+
+                short_name = short_name_element.text
+                full_name = full_name_element.text
+                price = price_element.text
+                percentage_change = percentage_change_element.text
+                volume_for_the_period = volume_for_the_period_element.text
+                capitalization = capitalization_element.text
+
+                new_data = CryptoCurrency(short_name=short_name, full_name=full_name, price=price, percentage_change=percentage_change, volume_for_the_period=volume_for_the_period, capitalization=capitalization)
+                session.add(new_data)
+                session.commit()
 
                 driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", short_name_element)
 
@@ -111,8 +135,4 @@ except Exception as e:
 
 finally:
     driver.quit()
-
-
-
-
-
+    session.close()
