@@ -5,15 +5,21 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-from models.parser_models import CryptoCurrency
+from models.parser_models import EntityCrypto, AttributeCrypto, ValuesCrypto
 from models.settings import session
-
 
 
 chrome_driver = ChromeService(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=chrome_driver)
 driver.maximize_window()
 
+def get_or_create_attribute(session, attribute_name):
+    attribute = session.query(AttributeCrypto).filter_by(name_attribute=attribute_name).first()
+    if not attribute:
+        attribute = AttributeCrypto(name_attribute=attribute_name)
+        session.add(attribute)
+        session.commit()
+    return attribute.id
 
 def procces_page(driver):
     try:
@@ -44,22 +50,28 @@ def procces_page(driver):
                     EC.presence_of_element_located((By.XPATH, capitalization_xpath))
                 )
 
-                # print(f'{i} Short Name: {short_name_element.text}')
-                # print(f'{i} Full Name: {full_name_element.text}')
-                # print(f'{i} Price: {price_element.text}')
-                # print(f'{i} percentage_change: {percentage_change_element.text}')
-                # print(f'{i} volume_for_the_period: {volume_for_the_period_element.text}')
-                # print(f'{i} capitalization: {capitalization_element.text}')
+                entity = session.query(EntityCrypto).filter_by(short_name=short_name_element.text).first()
+                if not entity:
+                    entity = EntityCrypto(short_name=short_name_element.text, full_name=full_name_element.text)
+                    session.add(entity)
+                    session.commit()
 
-                short_name = short_name_element.text
-                full_name = full_name_element.text
-                price = price_element.text
-                percentage_change = percentage_change_element.text
-                volume_for_the_period = volume_for_the_period_element.text
-                capitalization = capitalization_element.text
+                attributes = {
+                    "price": price_element.text,
+                    "percentage_change": percentage_change_element.text,
+                    "volume_for_the_period": volume_for_the_period_element.text,
+                    "capitalization": capitalization_element.text,
+                }
 
-                new_data = CryptoCurrency(short_name=short_name, full_name=full_name, price=price, percentage_change=percentage_change, volume_for_the_period=volume_for_the_period, capitalization=capitalization)
-                session.add(new_data)
+                for attr_name, attr_value in attributes.items():
+                    attr_id = get_or_create_attribute(session, attr_name)
+                    value_entry = ValuesCrypto(
+                        values=attr_value,
+                        entity_id=entity.id,
+                        attribute_id=attr_id
+                    )
+                    session.add(value_entry)
+
                 session.commit()
 
                 driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", short_name_element)
@@ -90,22 +102,28 @@ def procces_page(driver):
                     EC.presence_of_element_located((By.XPATH, capitalization_xpath))
                 )
 
-                # print(f'{i} Short Name: {short_name_element.text}')
-                # print(f'{i} Full Name: {full_name_element.text}')
-                # print(f'{i} Price: {price_element.text}')
-                # print(f'{i} percentage_change: {percentage_change_element.text}')
-                # print(f'{i} volume_for_the_period: {volume_for_the_period_element.text}')
-                # print(f'{i} capitalization: {capitalization_element.text}')
+                entity = session.query(EntityCrypto).filter_by(short_name=short_name_element.text).first()
+                if not entity:
+                    entity = EntityCrypto(short_name=short_name_element.text, full_name=full_name_element.text)
+                    session.add(entity)
+                    session.commit()
 
-                short_name = short_name_element.text
-                full_name = full_name_element.text
-                price = price_element.text
-                percentage_change = percentage_change_element.text
-                volume_for_the_period = volume_for_the_period_element.text
-                capitalization = capitalization_element.text
+                attributes = {
+                    "price": price_element.text,
+                    "percentage_change": percentage_change_element.text,
+                    "volume_for_the_period": volume_for_the_period_element.text,
+                    "capitalization": capitalization_element.text,
+                }
 
-                new_data = CryptoCurrency(short_name=short_name, full_name=full_name, price=price, percentage_change=percentage_change, volume_for_the_period=volume_for_the_period, capitalization=capitalization)
-                session.add(new_data)
+                for attr_name, attr_value in attributes.items():
+                    attr_id = get_or_create_attribute(session, attr_name)
+                    value_entry = ValuesCrypto(
+                        values=attr_value,
+                        entity_id=entity.id,
+                        attribute_id=attr_id
+                    )
+                    session.add(value_entry)
+
                 session.commit()
 
                 driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", short_name_element)
@@ -136,3 +154,9 @@ except Exception as e:
 finally:
     driver.quit()
     session.close()
+
+
+#timescale
+#clickhouse
+#уровни http и https
+#eav
