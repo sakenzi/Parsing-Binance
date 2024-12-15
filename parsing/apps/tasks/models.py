@@ -22,3 +22,10 @@ class ValuesCrypto(models.Model):
 
     entity = models.ForeignKey(EntityCrypto, on_delete=models.CASCADE, related_name='values')
     attributes = models.ForeignKey(AttributeCrypto, on_delete=models.CASCADE, related_name='values')
+
+
+class ParsingSettings(models.Model):
+    interval_minutes = models.IntegerField(default=10)
+
+    def __str__(self):
+        return f"Interval: {self.interval_minutes} minutes"
