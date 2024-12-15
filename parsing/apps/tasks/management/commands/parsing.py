@@ -10,9 +10,11 @@ from apps.tasks.models import EntityCrypto, ValuesCrypto, AttributeCrypto
 from django.core.management.base import BaseCommand
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
+from datetime import datetime
 
 
-def handle(self, *args, **options):
+def handle():
+    print(f"Парсинг начался: {datetime.now()}")
     chrome_options = webdriver.ChromeOptions()
     # chrome_options.add_argument('--headless')
     chrome_options.add_argument('--disable-gpu')
@@ -154,6 +156,8 @@ def handle(self, *args, **options):
         driver.quit()
 
 def start():
+    print("Запуск планировщика ...")
     scheduler = BackgroundScheduler()
-    scheduler.add_job(handle, 'interval', minutes=1)
+    scheduler.add_job(handle, 'interval', minutes=1, max_instances=1, coalesce=False)
     scheduler.start()
+    print("Планировщик запущен!")
