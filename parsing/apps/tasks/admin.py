@@ -21,6 +21,11 @@ class ValuesCryptoAdmin(admin.ModelAdmin):
     ordering = ('-id',)
 
 
+class ParsingSettingsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'interval_minutes')
+
+
 admin.site.register(EntityCrypto, EntityCryptoAdmin)
 admin.site.register(AttributeCrypto, AttributeCryptoAdmin)
 admin.site.register(ValuesCrypto, ValuesCryptoAdmin)
+admin.site.register(ParsingSettings, ParsingSettingsAdmin)

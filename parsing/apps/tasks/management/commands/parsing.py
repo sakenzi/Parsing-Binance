@@ -7,10 +7,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from django.db import transaction
 import time
 from apps.tasks.models import EntityCrypto, ValuesCrypto, AttributeCrypto
-from django.core.management.base import BaseCommand
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR
 from datetime import datetime
+from apps.tasks.models import ParsingSettings
 
 
 def handle():
@@ -158,6 +158,23 @@ def handle():
 def start():
     print("Запуск планировщика ...")
     scheduler = BackgroundScheduler()
-    scheduler.add_job(handle, 'interval', minutes=1, max_instances=1, coalesce=False)
-    scheduler.start()
-    print("Планировщик запущен!")
+    try:
+        parsing_settings = ParsingSettings.objects.first()
+        if parsing_settings:
+            interval_minutes = parsing_settings.interval_minutes
+        else:
+            interval_minutes = 10
+            print('Настройки не найдены. Используется значение по умолчанию: 10 минут.')
+        
+        scheduler.add_job(
+            handle,
+            'interval',
+            minutes = interval_minutes,
+            max_instances=1,
+            coalesce=False
+        )
+
+        scheduler.start()
+        print(f"Планировщик запущен с интервалом: {interval_minutes} минут.")
+    except Exception as e:
+        print(f"Ошибка при запуске планировщика: {e}")

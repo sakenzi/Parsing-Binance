@@ -133,3 +133,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TEST_RUNNER = 'django_selenium.selenium_runner.SeleniumTestRunner'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://localhost:5000",  
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
